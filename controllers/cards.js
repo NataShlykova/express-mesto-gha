@@ -6,7 +6,6 @@ const {
 } = require('../utils/errorConstans');
 
 module.exports.getCards = (req, res) => {
-
   Card.find({})
     .then((cards) => res.send(cards))
     .catch((err) => handleDefaultError(err, res));
