@@ -3,7 +3,6 @@ const conflictError = require('../utils/errors/conflict-error');
 const { handleDefaultError } = require('../utils/errors/errorConstans');
 
 module.exports = (err, req, res, next) => {
-
   if (err.name === 'ValidationError' || err.name === 'CastError') {
     res
       .status(validationError.statusCode)
