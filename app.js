@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const celebrate = require('celebrate').errors;
 const cookieParser = require('cookie-parser');
-const { INTERNAL_ERROR_CODE } = require('./utils/errors/errorConstans');
+const { INTERNAL_ERROR_CODE } = require('./utils/Constans');
 const errorHandler = require('./middlewares/handle-errors');
 const router = require('./routes/index');
 

@@ -1,4 +1,4 @@
-const { VALIDATION_ERROR_CODE } = require('./errorConstans');
+const { VALIDATION_ERROR_CODE } = require('../Constans');
 
 class ValidationError extends Error {
   constructor(message) {
@@ -7,4 +7,4 @@ class ValidationError extends Error {
   }
 }
 
-module.exports = new ValidationError('Переданы некорректные данные.');
+module.exports = ValidationError;

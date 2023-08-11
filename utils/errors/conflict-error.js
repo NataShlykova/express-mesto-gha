@@ -1,4 +1,4 @@
-const { CONFLICT_ERROR_CODE } = require('./errorConstans');
+const { CONFLICT_ERROR_CODE } = require('../Constans');
 
 class ConflictError extends Error {
   constructor(message) {
@@ -7,6 +7,4 @@ class ConflictError extends Error {
   }
 }
 
-module.exports = new ConflictError(
-  'Пользователь с указанным email уже существует',
-);
+module.exports = ConflictError;

@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const NotFoundError = require('../utils/errors/notFound-error');
-const { NOT_FOUND_ERROR_CODE } = require('../utils/errors/errorConstans');
+const { NOT_FOUND_ERROR_CODE } = require('../utils/Constans');
 
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)

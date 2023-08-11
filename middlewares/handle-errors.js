@@ -3,7 +3,7 @@ const {
   NOT_FOUND_ERROR_CODE,
   CONFLICT_ERROR_CODE,
   VALIDATION_ERROR_CODE,
-} = require('../utils/errors/errorConstans');
+} = require('../utils/Constans');
 const NotFoundError = require('../utils/errors/notFound-error');
 const UnauthorizedError = require('../utils/errors/unauthorized-error');
 const ForbiddenError = require('../utils/errors/forbidden-error');

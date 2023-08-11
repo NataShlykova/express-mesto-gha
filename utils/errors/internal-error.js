@@ -1,4 +1,4 @@
-const { INTERNAL_ERROR_CODE } = require('./errorConstans');
+const { INTERNAL_ERROR_CODE } = require('../Constans');
 
 class InternalError extends Error {
   constructor(message) {
@@ -7,4 +7,4 @@ class InternalError extends Error {
   }
 }
 
-module.exports = new InternalError('На сервере произошла ошибка');
+module.exports = InternalError;
