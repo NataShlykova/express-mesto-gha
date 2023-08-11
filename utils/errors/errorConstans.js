@@ -3,13 +3,7 @@ const UNAUTHORIZED_ERROR_CODE = 401;
 const FORBIDDEN_ERROR_CODE = 403;
 const NOT_FOUND_ERROR_CODE = 404;
 const CONFLICT_ERROR_CODE = 409;
-
-const handleDefaultError = (err, res) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({
-    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
-  });
-};
+const INTERNAL_ERROR_CODE = 500;
 
 module.exports = {
   VALIDATION_ERROR_CODE,
@@ -17,5 +11,5 @@ module.exports = {
   FORBIDDEN_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
   CONFLICT_ERROR_CODE,
-  handleDefaultError,
+  INTERNAL_ERROR_CODE,
 };

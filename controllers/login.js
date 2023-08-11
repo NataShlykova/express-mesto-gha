@@ -1,29 +1,24 @@
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const UnauthorizedError = require('../utils/errors/unauthorized-error');
+const { UNAUTHORIZED_ERROR_CODE } = require('../utils/errors/errorConstans');
 
-module.exports.login = (req, res, next) => {
+module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
-  User.findOne({ email })
-    .select('+password')
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        throw new UnauthorizedError('Передан неверный логин или пароль');
-      }
-      return bcrypt
-        .compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new UnauthorizedError('Передан неверный логин или пароль');
-          }
-          const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
-            expiresIn: '7d',
-          });
-          res.status(200).send({ token });
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+        expiresIn: '7d',
+      });
+      res
+        .cookie('token', token, {
+          maxAge: 10000000,
+          httpOnly: true,
+          sameSite: true,
         })
-        .catch((err) => next(err));
+        .send({ token });
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      res.status(UNAUTHORIZED_ERROR_CODE).send({ message: err.massage });
+    });
 };

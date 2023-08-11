@@ -1,45 +1,42 @@
-const validationError = require('../utils/errors/validation-error');
-const conflictError = require('../utils/errors/conflict-error');
-const { handleDefaultError } = require('../utils/errors/errorConstans');
+const { CastError, ValidationError, DocumentNotFound } = require('mongoose').Error;
+const {
+  NOT_FOUND_ERROR_CODE,
+  CONFLICT_ERROR_CODE,
+  VALIDATION_ERROR_CODE,
+} = require('../utils/errors/errorConstans');
+const NotFoundError = require('../utils/errors/notFound-error');
+const UnauthorizedError = require('../utils/errors/unauthorized-error');
+const ForbiddenError = require('../utils/errors/forbidden-error');
+const internalError = require('../utils/errors/internal-error');
 
 module.exports = (err, req, res, next) => {
-  if (err.name === 'ValidationError' || err.name === 'CastError') {
-    res
-      .status(validationError.statusCode)
-      .send({ message: validationError.message });
-    return;
+  if (err instanceof CastError || err instanceof ValidationError) {
+    return res
+      .status(VALIDATION_ERROR_CODE)
+      .send({ message: 'Данные переданы некорректно' });
   }
-  if (err.name === 'NotFoundError') {
-    res.status(err.statusCode).send({ messaege: err.message });
-    return;
+  if (err instanceof DocumentNotFound) {
+    return res
+      .status(NOT_FOUND_ERROR_CODE)
+      .send({ messaege: 'Пльзователь не найден' });
   }
-
-  if (err.name === 'ForbiddenError') {
-    res.status(err.statusCode).send({ message: err.message });
-    return;
+  if (
+    err instanceof NotFoundError
+    || err instanceof UnauthorizedError
+    || err instanceof ForbiddenError
+  ) {
+    const { message } = err;
+    return res.status(err.statusCode).send({ message });
   }
-
   if (err.code === 11000) {
-    res.status(conflictError.statusCode).send({
-      message: conflictError.message,
+    return res.status(CONFLICT_ERROR_CODE).send({
+      message: 'Элетронный адрес уже зарегистрирован',
     });
-    return;
   }
 
-  if (err.name === 'UnauthorizedError') {
-    res.status(err.statusCode).send({
-      message: err.message,
-    });
-    return;
-  }
+  res.status(internalError).send({
+    message: 'Ошибка на сервере',
+  });
 
-  if (err.message === 'NotFoundPath') {
-    res.status(400).send({
-      message: 'Указанного пути не существует',
-    });
-    return;
-  }
-
-  handleDefaultError(err, res);
-  next();
+  return next();
 };

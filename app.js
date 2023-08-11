@@ -1,54 +1,30 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi } = require('celebrate');
-const { errors } = require('celebrate');
-const bodyParser = require('body-parser');
-const auth = require('./middlewares/auth');
-
-const { createUser } = require('./controllers/users');
-const { login } = require('./controllers/login');
-const { regExpUrl } = require('./utils/regexp/regExpUrl');
-const NotFoundError = require('./utils/errors/notFound-error');
+const celebrate = require('celebrate').errors;
+const cookieParser = require('cookie-parser');
+const { INTERNAL_ERROR_CODE } = require('./utils/errors/errorConstans');
+const errorHandler = require('./middlewares/handle-errors');
+const router = require('./routes/index');
 
 const { PORT = 3000 } = process.env;
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+app.use(express.json());
+app.use(cookieParser());
+app.use('/', router);
+app.use(celebrate());
+app.use(errorHandler);
 
-app.post(
-  '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().regex(regExpUrl),
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
-  createUser,
-);
-
-app.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
-  login,
-);
-
-app.use('/users', auth, require('./routes/users'));
-app.use('/cards', auth, require('./routes/cards'));
-
-app.use((req, res, next) => {
-  next(new NotFoundError('Некорректно указан путь'));
+app.use((err, req, res, next) => {
+  const { statusCode = INTERNAL_ERROR_CODE, message } = err;
+  res.status(statusCode).send({
+    message:
+      statusCode === INTERNAL_ERROR_CODE
+        ? 'На сервере произошла ошибка'
+        : message,
+  });
+  next();
 });
-app.use(errors());
-app.use(require('./middlewares/handle-errors'));
 
 app.listen(PORT);

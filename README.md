@@ -1,6 +1,21 @@
 [![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
 # Проект Mesto фронтенд + бэкенд
 
+## Функциональность
+* Регистрация и авторизация пользователей
+* Получение информации о пользователе
+* Редактирование данных и аватара пользователя
+* Получение пользователя по ID
+* Получение карточек
+* Создание и удаление карточки
+* Возможность лайка и дизлайка карточки
+
+## Технологии:
+* Mongoose
+* NodeJS
+* Express
+* Nginx
+* MongoDB
 
 ## Директории
 

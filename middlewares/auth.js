@@ -12,8 +12,8 @@ module.exports = (req, res, next) => {
   let payload;
   try {
     payload = jwt.verify(token, 'some-secret-key');
-  } catch {
-    return next(new UnauthorizedError('Передан неверный токен'));
+  } catch (err) {
+    next(new UnauthorizedError('Передан неверный токен'));
   }
 
   req.user = payload;

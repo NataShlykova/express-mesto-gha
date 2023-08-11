@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const { regExpUrl } = require('../utils/regexp/regExpUrl');
-const User = require('./user');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -19,13 +18,13 @@ const cardSchema = new mongoose.Schema({
   owner: {
     required: true,
     type: mongoose.Schema.Types.ObjectId,
-    ref: User,
+    ref: 'user',
   },
   likes: [
     {
       required: true,
       type: mongoose.Schema.Types.ObjectId,
-      ref: User,
+      ref: 'user',
       default: [],
     },
   ],
