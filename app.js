@@ -21,7 +21,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send({
     message:
       statusCode === INTERNAL_ERROR_CODE
-        ? 'На сервере произошла ошибка'
+        ? 'Произошла ошибка сервера!'
         : message,
   });
   next();

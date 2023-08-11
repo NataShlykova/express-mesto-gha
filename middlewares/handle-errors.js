@@ -3,11 +3,11 @@ const {
   NOT_FOUND_ERROR_CODE,
   CONFLICT_ERROR_CODE,
   VALIDATION_ERROR_CODE,
+  INTERNAL_ERROR_CODE,
 } = require('../utils/Constans');
 const NotFoundError = require('../utils/errors/notFound-error');
 const UnauthorizedError = require('../utils/errors/unauthorized-error');
 const ForbiddenError = require('../utils/errors/forbidden-error');
-const internalError = require('../utils/errors/internal-error');
 
 module.exports = (err, req, res, next) => {
   if (err instanceof CastError || err instanceof ValidationError) {
@@ -34,7 +34,7 @@ module.exports = (err, req, res, next) => {
     });
   }
 
-  res.status(internalError).send({
+  res.status(INTERNAL_ERROR_CODE).send({
     message: 'Ошибка на сервере',
   });
 

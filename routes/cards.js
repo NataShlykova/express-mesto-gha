@@ -1,7 +1,12 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const { getCards, createCard, deleteCard } = require('../controllers/cards');
-const { likeCard, dislikeCard } = require('../controllers/cards');
+const {
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
+} = require('../controllers/cards');
 const { regExpUrl } = require('../utils/regexp/regExpUrl');
 
 router.get('/', getCards);

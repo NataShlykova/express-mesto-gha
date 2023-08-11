@@ -1,22 +1,18 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
-const NotFoundError = require('../utils/errors/notFound-error');
-const { NOT_FOUND_ERROR_CODE } = require('../utils/Constans');
+const { NOT_FOUND_ERROR_CODE, CREATED_CODE } = require('../utils/Constans');
 
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => {
-      throw new NotFoundError('Пользователь не найден');
-    })
     .then((user) => {
       res.send(user);
     })
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((user) => res.status(200).send(user))
     .catch(next);
 };
 
@@ -36,7 +32,7 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     })
-      .then((user) => res.status(201).send(user))
+      .then((user) => res.status(CREATED_CODE).send(user))
       .catch(next);
   });
 };
@@ -69,7 +65,7 @@ module.exports.updateProfile = (req, res, next) => {
 };
 
 module.exports.updateAvatar = (req, res, next) => {
-  const avatar = req.body;
+  const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },

@@ -13,6 +13,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: (v) => regExpUrl.test(v),
+      message: 'Cсылка указана неверно',
     },
   },
   owner: {
@@ -22,7 +23,6 @@ const cardSchema = new mongoose.Schema({
   },
   likes: [
     {
-      required: true,
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
       default: [],
