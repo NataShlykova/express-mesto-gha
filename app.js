@@ -1,28 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const celebrate = require('celebrate').errors;
+const celebrateErrors = require('celebrate').errors;
 const cookieParser = require('cookie-parser');
-const { INTERNAL_ERROR_CODE } = require('./utils/Constans');
-const errorHandler = require('./middlewares/handle-errors');
 const router = require('./routes/index');
+const { DEFAULT_ERROR_CODE } = require('./utils/Constans');
+const handleErrors = require('./middlewares/handle-errors');
 
 const { PORT = 3000 } = process.env;
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 const app = express();
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
-app.use(express.json());
 app.use(cookieParser());
+app.use(express.json());
 app.use('/', router);
-app.use(celebrate());
-app.use(errorHandler);
+app.use(celebrateErrors());
+app.use(handleErrors);
 
 app.use((err, req, res, next) => {
-  const { statusCode = INTERNAL_ERROR_CODE, message } = err;
+  const { statusCode = DEFAULT_ERROR_CODE, message } = err;
   res.status(statusCode).send({
-    message:
-      statusCode === INTERNAL_ERROR_CODE
-        ? 'Произошла ошибка сервера!'
-        : message,
+    message: statusCode === DEFAULT_ERROR_CODE ? 'Ошибка на сервере' : message,
   });
   next();
 });

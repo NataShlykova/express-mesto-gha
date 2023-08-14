@@ -1,42 +1,49 @@
-const { CastError, ValidationError, DocumentNotFound } = require('mongoose').Error;
+const { ValidationError, CastError, DocumentNotFoundError } = require('mongoose').Error;
+const UnauthorizedError = require('../utils/errors/unauthorized-error');
+const NotFoundError = require('../utils/errors/notFound-error');
+const ForbiddenError = require('../utils/errors/forbidden-error');
 const {
+  VALIDATION_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
   CONFLICT_ERROR_CODE,
-  VALIDATION_ERROR_CODE,
-  INTERNAL_ERROR_CODE,
+  DEFAULT_ERROR_CODE,
 } = require('../utils/Constans');
-const NotFoundError = require('../utils/errors/notFound-error');
-const UnauthorizedError = require('../utils/errors/unauthorized-error');
-const ForbiddenError = require('../utils/errors/forbidden-error');
 
 module.exports = (err, req, res, next) => {
-  if (err instanceof CastError || err instanceof ValidationError) {
+  if (err instanceof ValidationError || err instanceof CastError) {
     return res
       .status(VALIDATION_ERROR_CODE)
-      .send({ message: 'Данные переданы некорректно' });
-  }
-  if (err instanceof DocumentNotFound) {
-    return res
-      .status(NOT_FOUND_ERROR_CODE)
-      .send({ messaege: 'Пльзователь не найден' });
-  }
-  if (
-    err instanceof NotFoundError
-    || err instanceof UnauthorizedError
-    || err instanceof ForbiddenError
-  ) {
-    const { message } = err;
-    return res.status(err.statusCode).send({ message });
-  }
-  if (err.code === 11000) {
-    return res.status(CONFLICT_ERROR_CODE).send({
-      message: 'Элетронный адрес уже зарегистрирован',
-    });
+      .send({ message: 'Неверные данные' });
   }
 
-  res.status(INTERNAL_ERROR_CODE).send({
-    message: 'Ошибка на сервере',
-  });
+  if (err instanceof DocumentNotFoundError) {
+    return res
+      .status(NOT_FOUND_ERROR_CODE)
+      .send({
+        message: 'Пользователь с указанным _id не найден',
+      });
+  }
+
+  if (err instanceof NotFoundError
+    || err instanceof ForbiddenError
+    || err instanceof UnauthorizedError) {
+    const { message } = err;
+    return res
+      .status(err.statusCode)
+      .send({ message });
+  }
+
+  if (err.code === 11000) {
+    return res
+      .status(CONFLICT_ERROR_CODE)
+      .send({ message: 'Адрес почты уже зарегистрирован в базе данных' });
+  }
+
+  res
+    .status(DEFAULT_ERROR_CODE)
+    .send({
+      message: 'Ошибка на сервере',
+    });
 
   return next();
 };

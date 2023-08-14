@@ -1,6 +1,6 @@
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const validator = require('validator');
-const bcrypt = require('bcrypt');
 const { regExpUrl } = require('../utils/regexp/regExpUrl');
 
 const userSchema = new mongoose.Schema({
@@ -22,22 +22,22 @@ const userSchema = new mongoose.Schema({
       validator: (v) => regExpUrl.test(v),
       message: 'Cсылка указана неверно',
     },
-    default:
-      'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
-    required: true,
-    type: String,
     unique: true,
+    type: String,
+    required: true,
     validate: {
       validator: (email) => validator.isEmail(email),
-      message: ({ value }) => `${value} некорректный`,
+      message: ({ value }) => `${value} недействителен!`,
     },
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   password: {
-    required: true,
-    type: String,
     select: false,
+    type: String,
+    required: true,
   },
 }, { toJSON: { useProjection: true }, toObject: { useProjection: true } });
 
@@ -47,15 +47,14 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неверно указаны почта или пароль'));
+        return Promise.reject(new Error('Неправильные почта или пароль'));
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Неверно указаны почта или пароль'));
+            return Promise.reject(new Error('Неправильные почта или пароль'));
           }
-
           return user;
         });
     });
