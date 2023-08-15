@@ -3,8 +3,10 @@ const User = require('../models/user');
 
 const {
   VALIDATION_CODE,
-  NOT_FOUND_ERROR_CODE,
 } = require('../utils/Constans');
+const ConflictError = require('../utils/errors/conflict-error');
+const ValidationError = require('../utils/errors/validation-error');
+const NotFoundError = require('../utils/errors/notFound-error');
 
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
@@ -38,16 +40,22 @@ module.exports.createUser = (req, res, next) => {
       .status(VALIDATION_CODE)
       .send({ data: user }))
 
-    .catch(next);
+    .catch((error) => {
+      if (error.code === 11000) {
+        next(new ConflictError('Адрес почты уже зарегистрирован в базе данных'));
+      } else if (error.name === 'ValidationError') {
+        next(new ValidationError('Данные некорректны'));
+      } else {
+        next(error);
+      }
+    });
 };
 
 const verification = (user, res) => {
-  if (user) {
-    return res.send({ data: user });
+  if (!user) {
+    throw new NotFoundError('Пользователь с указанным _id не найден');
   }
-  return res
-    .status(NOT_FOUND_ERROR_CODE)
-    .send({ message: 'Пользователь с указанным _id не найден' });
+  return res.send({ data: user });
 };
 
 module.exports.getUser = (req, res, next) => {
@@ -68,7 +76,13 @@ module.exports.updateProfile = (req, res, next) => {
   )
 
     .then((user) => verification(user, res))
-    .catch(next);
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        next(new ValidationError('Ошибка валидации данных'));
+      } else {
+        next(error);
+      }
+    });
 };
 
 module.exports.updateAvatar = (req, res, next) => {
@@ -79,5 +93,11 @@ module.exports.updateAvatar = (req, res, next) => {
   })
 
     .then((user) => verification(user, res))
-    .catch(next);
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        next(new ValidationError('Ошибка валидации данных'));
+      } else {
+        next(error);
+      }
+    });
 };

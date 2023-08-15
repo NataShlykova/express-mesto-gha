@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { UNAUTHORIZED_ERROR_CODE, JWT_SECRET } = require('../utils/Constans');
+const { JWT_SECRET } = require('../utils/Constans');
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -19,7 +19,5 @@ module.exports.login = (req, res) => {
         })
         .send({ token });
     })
-    .catch((err) => {
-      res.status(UNAUTHORIZED_ERROR_CODE).send({ message: err.message });
-    });
+    .catch(next);
 };

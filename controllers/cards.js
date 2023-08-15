@@ -3,8 +3,8 @@ const NotFoundError = require('../utils/errors/notFound-error');
 const ForbiddenError = require('../utils/errors/forbidden-error');
 const {
   VALIDATION_CODE,
-  NOT_FOUND_ERROR_CODE,
 } = require('../utils/Constans');
+const ValidationError = require('../utils/errors/validation-error');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -24,7 +24,13 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((card) => card.populate('owner'))
     .then((card) => res.status(VALIDATION_CODE).send({ data: card }))
-    .catch(next);
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        next(new ValidationError('Ошибка валидации данных'));
+      } else {
+        next(error);
+      }
+    });
 };
 
 module.exports.deleteCard = (req, res, next) => {
@@ -47,18 +53,17 @@ module.exports.deleteCard = (req, res, next) => {
         ])
         .then((cardDeleted) => {
           res.send({ data: cardDeleted });
-        });
+        })
+        .catch(next);
     })
     .catch(next);
 };
 
 const verification = (card, res) => {
-  if (card) {
-    return res.send({ data: card });
+  if (!card) {
+    throw new NotFoundError('Карточки с указанным _id не cуществует');
   }
-  return res
-    .status(NOT_FOUND_ERROR_CODE)
-    .send({ message: 'Карточки с указанным _id не cуществует' });
+  return res.send({ data: card });
 };
 
 module.exports.likeCard = (req, res, next) => {
@@ -67,10 +72,6 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .populate([
-      { path: 'owner', model: 'user' },
-      { path: 'likes', model: 'user' },
-    ])
     .then((user) => verification(user, res))
     .catch((err) => next(err));
 };
@@ -81,10 +82,6 @@ module.exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .populate([
-      { path: 'owner', model: 'user' },
-      { path: 'likes', model: 'user' },
-    ])
     .then((user) => verification(user, res))
     .catch((err) => next(err));
 };
